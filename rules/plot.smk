@@ -4,11 +4,11 @@ from re import search
 
 def allprepared(wildcards):
     print(os.getcwd())
-    f=glob("workloads/orderby/*.rq")
+    f=glob("workloads/watdiv/*.rq")
     res=[]
     #print(f'f:{f}')
     for e in f:
-        m = search('workloads/orderby/(.*).rq', e)
+        m = search('workloads/watdiv/(.*).rq', e)
         res.append(f'output/orderby/{m.group(1)}-prepared.csv')
         res.append(f'output/baseline/{m.group(1)}-prepared.csv')
     print(f'res:{res}')

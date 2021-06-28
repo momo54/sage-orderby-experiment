@@ -1,0 +1,10 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sorg: <http://schema.org/>
+PREFIX wsdbm: <http://db.uwaterloo.ca/~galuc/wsdbm/>
+
+SELECT ?v0 ?v2 ?v3 WHERE {
+	?v0	rdf:type	?v1 .
+	?v0	sorg:description	?v2 .
+	?v0	sorg:keywords	?v3 .
+	?v0	sorg:language	wsdbm:Language0 .
+} order by ?v1 ?v0 limit 10

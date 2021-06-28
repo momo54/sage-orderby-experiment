@@ -1,6 +1,6 @@
 rule run_sage_ob:
     input:
-        ancient("workloads/orderby/{query}.rq")
+        ancient("workloads/watdiv/{query}.rq")
     output:
         result="output/orderby/{query,[^/]+}.json",
         stats="output/orderby/{query,[^/]+}.csv",
@@ -13,7 +13,7 @@ rule run_sage_ob:
 
 rule run_sage_baseline:
     input:
-        ancient("workloads/orderby/{query}.rq")
+        ancient("workloads/watdiv/{query}.rq")
     output:
         result="output/baseline/{query,[^/]+}.json",
         stats="output/baseline/{query,[^/]+}.csv",
