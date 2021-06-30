@@ -10,6 +10,7 @@ from time import time
 from json import dumps
 from statistics import mean
 from utils import list_files, basename
+from pathlib import Path
 
 coloredlogs.install(level='INFO', fmt='%(asctime)s - %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
@@ -25,12 +26,21 @@ logger = logging.getLogger(__name__)
     help="The file in which query execution statistics will be stored.")
 @click.option("--orderby/--no-orderby", default=False,
     help="computes orderby locally.")
-def execute(query, endpoint, default_graph, output, measures,orderby):
+@click.option("--limit", type=int, default=10,
+    help="Limit of a of SPARQL query.")
+def execute(query, endpoint, default_graph, output, measures,orderby,limit):
 
     orderclause=""
     limitclause=""
     querys=open(query).read()
+    query_name=Path(query).stem
+    engine="orderby"
 
+    if limit is not None:
+        m = re.search('(.*)order by(.*) limit (.*)', querys,re.DOTALL)
+        limitclause=int(m.group(3))
+        querys=f'{m.group(1)} order by {m.group(2)} limit {limit}'
+        print(f"Changing limit from {limit}")
 
     if orderby is True:
         print(f"removing orderby clause in {querys}")
@@ -41,6 +51,7 @@ def execute(query, endpoint, default_graph, output, measures,orderby):
         #keep order expr.
         orderclause=m.group(2)
         limitclause=int(m.group(3))
+        engine="baseline"
 
     headers = {
         "accept": "text/html",
@@ -101,7 +112,7 @@ def execute(query, endpoint, default_graph, output, measures,orderby):
         with open(measures, 'w') as measures_file:
             avg_loading_time = mean(loading_times)
             avg_resume_time = mean(resume_times)
-            measures_file.write(f'{execution_time},{nb_calls},{nb_results},{avg_loading_time},{avg_resume_time}')
+            measures_file.write(f'{query_name},{engine},{limit},{execution_time},{nb_calls},{nb_results},{avg_loading_time},{avg_resume_time}')
     logger.info(f'Query complete in {execution_time}s with {nb_calls} HTTP calls. {nb_results} solution mappings !')
 
 

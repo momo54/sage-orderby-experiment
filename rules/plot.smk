@@ -2,37 +2,27 @@ from scripts.utils import list_files, query_name
 from glob import glob
 from re import search
 
-def allprepared(wildcards):
+def todo(wildcards):
     print(os.getcwd())
     f=glob("workloads/watdiv/*.rq")
     res=[]
     #print(f'f:{f}')
     for e in f:
         m = search('workloads/watdiv/(.*).rq', e)
-        res.append(f'output/orderby/{m.group(1)}-prepared.csv')
-        res.append(f'output/baseline/{m.group(1)}-prepared.csv')
-    print(f'res:{res}')
+        for engine in ["orderby","baseline"]:
+            for limit in [1,10,20]:
+                res.append(f'output/{engine}/{limit}/{m.group(1)}.csv')
+    print(f'todo:{res}')
     return res
 
-
-rule prepare_data:
-    input:
-        "output/{engine}/{query}.csv"
-    output:
-        prepared="output/{engine}/{query}-prepared.csv",
-    run:
-        with open(output.prepared, "w") as out:
-            for l in open(input[0]):
-                print(f"{wildcards.query},{wildcards.engine},{l}", file=out)
-
-rule merge_engine_data:
-     input: allprepared
+rule merge_all:
+     input: todo
      output:
          "output/all.csv"
      run:
          with open(output[0], "w") as out:
              print(f"input:{input}")
-             print("query,engine,execution_time,nb_calls,nb_results,loading_time,resume_time",file=out)
+             print("query,engine,limit,execution_time,nb_calls,nb_results,loading_time,resume_time",file=out)
              for f in input:
                  for l in open(f):
                      print(f"{l}", file=out)
@@ -60,3 +50,12 @@ rule plot_nb_calls:
         "figures/nb_calls.png"
     shell:
         "python scripts/plots.py nb-calls {input} {output}"
+
+
+rule plot_limit_change:
+    input:
+        ancient("output/all.csv")
+    output:
+        "figures/change_limit.png"
+    shell:
+        "python scripts/plots.py change-limit {input} {output}"

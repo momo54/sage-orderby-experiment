@@ -25,7 +25,8 @@ def cli():
 @click.argument('output', type=click.Path())
 def execution_times(data, output):
     dataframe = read_csv(data, sep=',')
-    chart=sns.catplot(data=dataframe, kind="bar",x="query", y="execution_time",hue="engine",
+    selection=dataframe[dataframe["limit"]==10]
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="execution_time",hue="engine",
         palette="dark", alpha=.6, height=6)
     chart.despine(left=True)
     chart.set_axis_labels("", "Queries")
@@ -39,13 +40,15 @@ def execution_times(data, output):
 @click.argument('output', type=click.Path())
 def data_transfer(data, output):
     dataframe = read_csv(data, sep=',')
-    chart=sns.catplot(data=dataframe, kind="bar",x="query", y="nb_results",hue="engine",
+    selection=dataframe[dataframe["limit"]==10]
+
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="nb_results",hue="engine",
         palette="dark", alpha=.6, height=6)
-    chart.despine(left=True)
+    chart.despine(bottom=True)
     chart.set_axis_labels("", "Queries")
     chart.set(yscale="log")
-    chart.legend.set_title("Data transfer (nb results received by the client)")
-
+    chart.legend.set_title("Data transfer")
+#    plt.legend(loc='upper left')
     chart.savefig(output)
 
 @cli.command()
@@ -53,11 +56,30 @@ def data_transfer(data, output):
 @click.argument('output', type=click.Path())
 def nb_calls(data, output):
     dataframe = read_csv(data, sep=',')
-    chart=sns.catplot(data=dataframe, kind="bar",x="query", y="nb_calls",hue="engine",
+    selection=dataframe[dataframe["limit"]==10]
+
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="nb_calls",hue="engine",
         palette="dark", alpha=.6, height=6)
     chart.despine(left=True)
-    chart.set_axis_labels("", "Queries")
+    chart.set_axis_labels("queries", "nb calls")
     chart.legend.set_title("Number of calls")
+    chart.set(yscale="log")
+
+    chart.savefig(output)
+
+
+@cli.command()
+@click.argument('data', type=click.Path(exists=True, file_okay=True, dir_okay=False))
+@click.argument('output', type=click.Path())
+def change_limit(data, output):
+    dataframe = read_csv(data, sep=',')
+    selection=dataframe[dataframe["engine"]=="orderby"]
+
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="execution_time",hue="limit",
+        palette="dark", alpha=.6, height=6)
+    chart.despine(left=True)
+    chart.set_axis_labels("times in s", "Queries")
+    chart.legend.set_title("Changing limits")
     chart.set(yscale="log")
 
     chart.savefig(output)
