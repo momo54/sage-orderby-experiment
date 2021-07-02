@@ -101,6 +101,12 @@ def execute(query, endpoint, default_graph, output, measures,orderby,limit):
 
     if orderby is True:
         print(f"need to sort with orderby:{orderclause} limit:{limitclause}")
+        # for bindings in json_response['bindings']:
+        #  topk.append(bindings)
+        # for e in reversed(expr):
+        #     reverse = bool(e.order and e.order == 'DESC')
+        #     topk = sorted(topk, key=lambda x: to_rdflib_term(x['?'+e.expr]),reverse=reverse)
+
 
     if output is not None:
         with open(output, 'w') as output_file:

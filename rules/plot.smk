@@ -9,7 +9,7 @@ def todo(wildcards):
     #print(f'f:{f}')
     for e in f:
         m = search('workloads/watdiv/(.*).rq', e)
-        for engine in ["orderby","baseline"]:
+        for engine in ["orderby","baseline","orderbyone"]:
             for limit in [1,10,20]:
                 res.append(f'output/{engine}/{limit}/{m.group(1)}.csv')
     print(f'todo:{res}')
@@ -59,3 +59,11 @@ rule plot_limit_change:
         "figures/change_limit.png"
     shell:
         "python scripts/plots.py change-limit {input} {output}"
+
+rule plot_limit_change_overhead:
+    input:
+        ancient("output/all.csv")
+    output:
+        "figures/change_limit_overhead.png"
+    shell:
+        "python scripts/plots.py change-limit-overhead {input} {output}"

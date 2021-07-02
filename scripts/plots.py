@@ -85,6 +85,23 @@ def change_limit(data, output):
     chart.savefig(output)
 
 
+@cli.command()
+@click.argument('data', type=click.Path(exists=True, file_okay=True, dir_okay=False))
+@click.argument('output', type=click.Path())
+def change_limit_overhead(data, output):
+    dataframe = read_csv(data, sep=',')
+    selection=dataframe[dataframe["engine"]=="orderby"]
+    selection['overhead']=selection["loading_time"]+selection["resume_time"]
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="overhead",hue="limit",
+        palette="dark", alpha=.6, height=6)
+    chart.despine(left=True)
+    chart.set_axis_labels("times in s", "Queries")
+    chart.legend.set_title("overhead")
+    chart.set(yscale="log")
+
+    chart.savefig(output)
+
+
 
 @cli.command()
 @click.argument('data', type=click.Path(exists=True, file_okay=True, dir_okay=False))
