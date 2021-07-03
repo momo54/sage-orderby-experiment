@@ -2,68 +2,70 @@ from scripts.utils import list_files, query_name
 from glob import glob
 from re import search
 
-def todo(wildcards):
+def todo_plot(wildcards):
     print(os.getcwd())
-    f=glob("workloads/watdiv/*.rq")
     res=[]
-    #print(f'f:{f}')
-    for e in f:
-        m = search('workloads/watdiv/(.*).rq', e)
-        for engine in ["orderby","baseline","orderbyone"]:
-            for limit in [1,10,20]:
-                res.append(f'output/{engine}/{limit}/{m.group(1)}.csv')
-    print(f'todo:{res}')
+    for workload in ["watdiv","watdiv-desc"]:
+        for limit in [1,10,20]:
+            res.append(f"figures/{workload}/{limit}/execution_times.png")
+            res.append(f"figures/{workload}/{limit}/data_transfer.png")
+            res.append(f"figures/{workload}/{limit}/nb_calls.png")
+    for workload in ["watdiv","watdiv-desc"]:
+        for engine in ["orderby","orderbyone"]:
+            res.append(f"figures/{workload}/{engine}/change_limit.png")
+            res.append(f"figures/{workload}/{engine}/change_limit_overhead.png")
+    print(f'todo_plot:{res}')
     return res
 
-rule merge_all:
-     input: todo
-     output:
-         "output/all.csv"
-     run:
-         with open(output[0], "w") as out:
-             print(f"input:{input}")
-             print("query,engine,limit,execution_time,nb_calls,nb_results,loading_time,resume_time",file=out)
-             for f in input:
-                 for l in open(f):
-                     print(f"{l}", file=out)
+rule plot_all:
+    input: todo_plot
 
 rule plot_execution_times:
     input:
         ancient("output/all.csv")
     output:
-        "figures/execution_times.png"
+        "figures/{workload}/{limit}/execution_times.png"
     shell:
-        "python scripts/plots.py execution-times {input} {output}"
+        "python scripts/plots.py execution-times \
+                --limit {wildcards.limit} --workload {wildcards.workload} \
+                 {input} {output}"
 
 rule plot_data_transfer:
     input:
         ancient("output/all.csv")
     output:
-        "figures/data_transfer.png"
+        "figures/{workload}/{limit}/data_transfer.png"
     shell:
-        "python scripts/plots.py data-transfer {input} {output}"
+        "python scripts/plots.py data-transfer \
+        --limit {wildcards.limit} --workload {wildcards.workload} \
+        {input} {output}"
 
 rule plot_nb_calls:
     input:
         ancient("output/all.csv")
     output:
-        "figures/nb_calls.png"
+        "figures/{workload}/{limit}/nb_calls.png"
     shell:
-        "python scripts/plots.py nb-calls {input} {output}"
-
+        "python scripts/plots.py nb-calls \
+        --limit {wildcards.limit} --workload {wildcards.workload} \
+        {input} {output}"
 
 rule plot_limit_change:
     input:
         ancient("output/all.csv")
     output:
-        "figures/change_limit.png"
+        "figures/{workload}/{engine}/change_limit.png"
     shell:
-        "python scripts/plots.py change-limit {input} {output}"
+        "python scripts/plots.py change-limit \
+        --engine {wildcards.engine} --workload {wildcards.workload} \
+        {input} {output}"
 
 rule plot_limit_change_overhead:
     input:
         ancient("output/all.csv")
     output:
-        "figures/change_limit_overhead.png"
+        "figures/{workload}/{engine}/change_limit_overhead.png"
     shell:
-        "python scripts/plots.py change-limit-overhead {input} {output}"
+        "python scripts/plots.py change-limit-overhead \
+                --engine {wildcards.engine} --workload {wildcards.workload} \
+                {input} {output}"

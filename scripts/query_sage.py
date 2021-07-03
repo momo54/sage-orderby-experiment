@@ -28,7 +28,9 @@ logger = logging.getLogger(__name__)
     help="computes orderby locally.")
 @click.option("--limit", type=int, default=10,
     help="Limit of a of SPARQL query.")
-def execute(query, endpoint, default_graph, output, measures,orderby,limit):
+@click.option("--tags", type=str, default="",
+    help="list of strings to tag measures (benchmark)")
+def execute(query, endpoint, default_graph, output, measures,orderby,limit,tags):
 
     orderclause=""
     limitclause=""
@@ -118,7 +120,7 @@ def execute(query, endpoint, default_graph, output, measures,orderby,limit):
         with open(measures, 'w') as measures_file:
             avg_loading_time = mean(loading_times)
             avg_resume_time = mean(resume_times)
-            measures_file.write(f'{query_name},{engine},{limit},{execution_time},{nb_calls},{nb_results},{avg_loading_time},{avg_resume_time}')
+            measures_file.write(f'{query_name},{engine},{limit},{execution_time},{nb_calls},{nb_results},{avg_loading_time},{avg_resume_time},{tags}')
     logger.info(f'Query complete in {execution_time}s with {nb_calls} HTTP calls. {nb_results} solution mappings !')
 
 
