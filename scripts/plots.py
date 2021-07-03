@@ -118,5 +118,24 @@ def change_limit_overhead(data, output, workload, engine):
 
     chart.savefig(output)
 
+@cli.command()
+@click.argument('data', type=click.Path(exists=True, file_okay=True, dir_okay=False))
+@click.argument('output', type=click.Path())
+@click.option("--engine", type=str, default="orderby",
+    help="Which engine.")
+@click.option("--limit", type=int, default=10,
+    help="Limit of a of SPARQL query.")
+def engine_limit(data, output,engine,limit):
+    dataframe = read_csv(data, sep=',')
+    selection=dataframe[(dataframe["engine"]=="orderbyone") & (dataframe["limit"]==limit)]
+    chart=sns.catplot(data=selection, kind="bar",x="query", y="nb_results",hue="workload",
+        palette="dark", alpha=.6, height=6)
+    chart.despine(left=True)
+    chart.set_axis_labels(f"All Queries",f"#results transfered for {engine}")
+    chart.legend.set_title("workloads")
+    chart.set(yscale="log")
+
+    chart.savefig(output)
+
 if __name__ == "__main__":
     cli()

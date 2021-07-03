@@ -14,6 +14,9 @@ def todo_plot(wildcards):
         for engine in ["orderby","orderbyone"]:
             res.append(f"figures/{workload}/{engine}/change_limit.png")
             res.append(f"figures/{workload}/{engine}/change_limit_overhead.png")
+    for engine in ["baseline","orderby","orderbyone"]:
+        for limit in [1,10,20]:
+            res.append(f"figures/{engine}/{limit}/workload_comp.png")
     print(f'todo_plot:{res}')
     return res
 
@@ -68,4 +71,14 @@ rule plot_limit_change_overhead:
     shell:
         "python scripts/plots.py change-limit-overhead \
                 --engine {wildcards.engine} --workload {wildcards.workload} \
+                {input} {output}"
+
+rule plot_engine_limit:
+    input:
+        ancient("output/all.csv")
+    output:
+        "figures/{engine}/{limit}/workload_comp.png"
+    shell:
+        "python scripts/plots.py engine-limit \
+                --engine {wildcards.engine} --limit {wildcards.limit} \
                 {input} {output}"
