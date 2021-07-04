@@ -12,6 +12,12 @@ from statistics import mean
 from utils import list_files, basename
 from pathlib import Path
 
+from rdflib.plugins.sparql.parser import parseQuery, parseUpdate
+from rdflib.plugins.sparql.algebra import translateQuery, translateUpdate
+from rdflib.plugins.sparql.algebra import pprintAlgebra
+from sage.query_engine.iterators.filter import to_rdflib_term
+
+
 coloredlogs.install(level='INFO', fmt='%(asctime)s - %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -33,10 +39,11 @@ logger = logging.getLogger(__name__)
 def execute(query, endpoint, default_graph, output, measures,orderby,limit,tags):
 
     orderclause=""
-    limitclause=""
+    length=0
     querys=open(query).read()
     query_name=Path(query).stem
     engine="orderby"
+    expr=""
 
     if limit is not None:
         m = re.search('(.*)order by(.*) limit (.*)', querys,re.DOTALL)
@@ -52,7 +59,12 @@ def execute(query, endpoint, default_graph, output, measures,orderby,limit,tags)
         print(f'processing:{querys}')
         #keep order expr.
         orderclause=m.group(2)
-        limitclause=int(m.group(3))
+        length=int(m.group(3))
+
+        compiled_expr = parseQuery(f"SELECT * WHERE {{?s ?p ?o}} order by {orderclause}")
+        compiled_expr = translateQuery(compiled_expr)
+        expr = compiled_expr.algebra.p.p.expr
+
         engine="baseline"
 
     headers = {
@@ -78,37 +90,31 @@ def execute(query, endpoint, default_graph, output, measures,orderby,limit,tags)
     max = 0
     obj = ""
 
+    start_time = time()
     while has_next:
-        start_time = time()
         response = requests.post(endpoint, headers=headers, data=dumps(payload))
-        execution_time += time() - start_time
         nb_calls += 1
 
         json_response = response.json()
         has_next = json_response['next']
         payload["next"] = json_response["next"]
-        #results.extend(json_response["bindings"])
+        results.extend(json_response["bindings"])
         nb_results += len(json_response["bindings"])
         loading_times.append(json_response["stats"]["import"])
         resume_times.append(json_response["stats"]["export"])
 
-        # for bindings in json_response["bindings"]:
-        #     if bindings["?o"] not in triples_by_obj:
-        #         triples_by_obj[bindings["?o"]] = 0
-        #     else:
-        #         triples_by_obj[bindings["?o"]] += 1
-        #     if triples_by_obj[bindings["?o"]] > max:
-        #         max = triples_by_obj[bindings["?o"]]
-        #         obj = bindings["?o"]
-
     if orderby is True:
-        print(f"need to sort with orderby:{orderclause} limit:{limitclause}")
-        # for bindings in json_response['bindings']:
-        #  topk.append(bindings)
-        # for e in reversed(expr):
-        #     reverse = bool(e.order and e.order == 'DESC')
-        #     topk = sorted(topk, key=lambda x: to_rdflib_term(x['?'+e.expr]),reverse=reverse)
-
+        print(f"need to sort with orderby:{orderclause} limit:{length}")
+        topk=[]
+        for bindings in results:
+            topk.append(bindings)
+        for e in reversed(expr):
+            reverse = bool(e.order and e.order == 'DESC')
+            topk = sorted(topk, key=lambda x: to_rdflib_term(x['?'+e.expr]),reverse=reverse)
+        if len(topk)>length:
+            logger.info(f"cutting from {len(topk)} to {length}")
+            del topk[length:]
+        results=topk
 
     if output is not None:
         with open(output, 'w') as output_file:
@@ -116,6 +122,7 @@ def execute(query, endpoint, default_graph, output, measures,orderby,limit,tags)
     logger.info(f'\n{results}')
     # logger.info(f'{obj} : {max}')
 
+    execution_time += time() - start_time
     if measures is not None:
         with open(measures, 'w') as measures_file:
             avg_loading_time = mean(loading_times)

@@ -50,7 +50,7 @@ rule run_sage_baseline:
     shell:
         "python scripts/query_sage.py {input} \
                 {params.endpoint}  {params.dataset}\
-                --no-orderby --limit {wildcards.limit}\
+                --orderby --limit {wildcards.limit}\
                 --output {output.result} --measures {output.stats} --tags {wildcards.workload}"
 
 
@@ -66,7 +66,7 @@ rule run_sage_orderby_server:
     shell:
         "python scripts/query_sage.py {input} \
                 {params.endpoint}  {params.dataset}\
-                --orderby --limit {wildcards.limit}\
+                --no-orderby --limit {wildcards.limit}\
                 --output {output.result} --measures {output.stats} --tags {wildcards.workload}"
 
 rule run_sage_orderbyone:
