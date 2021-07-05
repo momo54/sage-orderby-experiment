@@ -11,7 +11,8 @@ def todo(wildcards):
             m = search(f'workloads/{workload}/(.*).rq', e)
             for engine in ["orderby","baseline","orderbyone"]:
                 for limit in [1,10,20]:
-                    res.append(f'output/{workload}/{engine}/{limit}/{m.group(1)}.csv')
+                    for run in [1,2,3]:
+                        res.append(f'output/{workload}/{engine}/{limit}/{run}/{m.group(1)}.csv')
         print(f'todo:{res}')
     return res
 
@@ -32,7 +33,7 @@ rule compute_all:
      run:
          with open(output[0], "w") as out:
              print(f"input:{input}")
-             print("query,engine,limit,execution_time,nb_calls,nb_results,loading_time,resume_time,workload",file=out)
+             print("query,engine,limit,execution_time,nb_calls,nb_results,loading_time,resume_time,workload,run",file=out)
              for f in input:
                  for l in open(f):
                      print(f"{l}", file=out)
@@ -42,8 +43,8 @@ rule run_sage_baseline:
     input:
         ancient("workloads/{workload}/{query}.rq")
     output:
-        result="output/{workload}/baseline/{limit}/{query,[^/]+}.json",
-        stats="output/{workload}/baseline/{limit}/{query,[^/]+}.csv",
+        result="output/{workload}/baseline/{limit}/{run}/{query,[^/]+}.json",
+        stats="output/{workload}/baseline/{limit}/{run}/{query,[^/]+}.csv",
     params:
         endpoint="http://localhost:8080/sparql",
         dataset="http://example.org/watdiv-skew"
@@ -51,15 +52,15 @@ rule run_sage_baseline:
         "python scripts/query_sage.py {input} \
                 {params.endpoint}  {params.dataset}\
                 --orderby --limit {wildcards.limit}\
-                --output {output.result} --measures {output.stats} --tags {wildcards.workload}"
+                --output {output.result} --measures {output.stats} --tags {wildcards.workload},{wildcards.run}"
 
 
 rule run_sage_orderby_server:
     input:
         ancient("workloads/{workload}/{query}.rq")
     output:
-        result="output/{workload}/orderby/{limit}/{query,[^/]+}.json",
-        stats="output/{workload}/orderby/{limit}/{query,[^/]+}.csv",
+        result="output/{workload}/orderby/{limit}/{run}/{query,[^/]+}.json",
+        stats="output/{workload}/orderby/{limit}/{run}/{query,[^/]+}.csv",
     params:
         endpoint="http://localhost:8080/sparql",
         dataset="http://example.org/watdiv-skew"
@@ -67,14 +68,14 @@ rule run_sage_orderby_server:
         "python scripts/query_sage.py {input} \
                 {params.endpoint}  {params.dataset}\
                 --no-orderby --limit {wildcards.limit}\
-                --output {output.result} --measures {output.stats} --tags {wildcards.workload}"
+                --output {output.result} --measures {output.stats} --tags {wildcards.workload},{wildcards.run}"
 
 rule run_sage_orderbyone:
     input:
         ancient("workloads/{workload}/{query}.rq")
     output:
-        result="output/{workload}/orderbyone/{limit}/{query,[^/]+}.json",
-        stats="output/{workload}/orderbyone/{limit}/{query,[^/]+}.csv",
+        result="output/{workload}/orderbyone/{limit}/{run}/{query,[^/]+}.json",
+        stats="output/{workload}/orderbyone/{limit}/{run}/{query,[^/]+}.csv",
     params:
         endpoint="http://localhost:8080/sparql",
         dataset="http://example.org/watdiv-skew",
@@ -83,4 +84,4 @@ rule run_sage_orderbyone:
         "PYTHONPATH={params.sagepath} python scripts/query_orderby.py  \
                 {params.endpoint}  {params.dataset}\
                 --limit {wildcards.limit}\
-                -f {input} --output {output.result} --measures {output.stats} --tags {wildcards.workload}"
+                -f {input} --output {output.result} --measures {output.stats} --tags {wildcards.workload},{wildcards.run}"
