@@ -1,0 +1,18 @@
+endpoints:
+  sage:
+    url: http://localhost:8080/sparql
+    graph: http://example.com/datasets/watdiv10M
+  virtuoso:
+    url: http://localhost:8890/sparql
+    graph: http://example.com/datasets/watdiv10M
+xp:
+  approaches: [
+    'sage',
+    'sage-topk',
+    'sage-topk-collab',
+    'sage-topk-collab-0.75',
+    'sage-topk-collab-1.0']
+  workloads: ['watdiv', 'watdiv-desc']
+  limits: [10, 100, 1000]
+  runs: [1, 2, 3]
+  quotas: [100, 500, 1000]
