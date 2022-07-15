@@ -16,6 +16,7 @@ class ApproachFactory():
             "sage-topk",
             "sage-topk-collab",
             "sage-topk-collab-0.5",
+            "sage-topk-collab-0.75",
             "sage-topk-collab-1.0",
             "virtuoso"]
 
@@ -29,6 +30,8 @@ class ApproachFactory():
             return SaGeTopKCollab(approach, config)
         elif approach == "sage-topk-collab-0.5":
             return SaGeTopKCollab(approach, config, refresh_rate=0.5)
+        elif approach == "sage-topk-collab-0.75":
+            return SaGeTopKCollab(approach, config, refresh_rate=0.75)
         elif approach == "sage-topk-collab-1.0":
             return SaGeTopKCollab(approach, config, refresh_rate=1.0)
         elif approach == "virtuoso":

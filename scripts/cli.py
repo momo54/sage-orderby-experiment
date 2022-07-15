@@ -62,11 +62,13 @@ def cli():
 
 @cli.command()
 @click.argument(
-    "configfile", type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.argument(
     "queryfile", type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.argument(
-    "approach", type=click.Choice(ApproachFactory.types()), default="sage")
+@click.option(
+    "--configfile",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    default="config/xp.yaml")
+@click.option(
+    "--approach", type=click.Choice(ApproachFactory.types()), default="sage")
 @click.option(
     "--limit", type=click.INT, default=10)
 @click.option(
@@ -80,7 +82,7 @@ def cli():
 @click.option(
     "--verbose/--quiet", default=False)
 def topk_run(
-    configfile, queryfile, approach, limit, quota, force_order,
+    queryfile, configfile, approach, limit, quota, force_order,
     stats, output, verbose
 ):
     if verbose:

@@ -86,7 +86,7 @@ class SaGeTopKCollab(Approach):
 
         logging.info(f"{self.name} - query sent to the server:\n{query}")
         logging.info(f"{self.name} - limit = {limit}")
-        logging.info(f"{self.name} - quota = {quota}ms")
+        logging.info(f"{self.name} - quota = {0 if None else quota}ms")
 
         headers = {
             "accept": "text/html",

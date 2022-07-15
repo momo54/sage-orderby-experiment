@@ -109,8 +109,8 @@ rule run_topk_query:
         metrics = "{output}/data/{workload}/{approach}/{limit}-{quota}/{run,[0-9]}/{query}.csv",
         solutions = "{output}/data/{workload}/{approach}/{limit}-{quota}/{run,[0-9]}/{query}.json"
     shell:
-        "python scripts/cli.py topk-run \
-            {input.config} {input.query} {wildcards.approach} \
+        "python scripts/cli.py topk-run {input.query} \
+            --approach {wildcards.approach} \
             --stats {output.metrics} \
             --output {output.solutions} \
             --limit {wildcards.limit} \
