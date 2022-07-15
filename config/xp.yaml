@@ -10,9 +10,10 @@ xp:
     'sage',
     'sage-topk',
     'sage-topk-collab',
+    'sage-topk-collab-0.5',
     'sage-topk-collab-0.75',
     'sage-topk-collab-1.0']
   workloads: ['watdiv', 'watdiv-desc']
-  limits: [10, 100, 1000]
+  limits: [10, 100, 1000, 10000]
   runs: [1, 2, 3]
   quotas: [100, 500, 1000]

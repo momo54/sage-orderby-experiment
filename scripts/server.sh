@@ -26,7 +26,7 @@ function start_virtuoso {
   if [[ -z "$(lsof -t -i:8890)" ]]
   then
     echo "Running the Virtuoso server..."
-    nohup virtuoso-t +configfile +foreground > /dev/null 2>&1 &
+    nohup virtuoso-t +configfile config/virtuoso.ini +foreground > /dev/null 2>&1 &
     sleep 10
   else
     echo "The Virtuoso server is already running..."
