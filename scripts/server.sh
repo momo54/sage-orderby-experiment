@@ -5,7 +5,7 @@ function start_sage {
   then
     echo "Running the SaGe server..."
     cd sage-engine
-    nohup poetry run sage ../config/sage.yaml -w 8 -p 8080 > /dev/null 2>&1 &
+    nohup poetry run sage ../config/sage.yaml -w 1 -p 8080 > /dev/null 2>&1 &
     sleep 10
   else
     echo "The SaGe server is already running..."
