@@ -33,8 +33,8 @@ def run_files(wcs):
                     for quota in config["xp"]["quotas"]:
                         for run in config["xp"]["runs"]:
                             files.append((
-                                f"{output}/tmp/{workload}/{approach}"
-                                f"/{limit}-{quota}/{run}/{filename}.csv"))
+                                f"{output}/tmp/{workload}/{approach}-{quota}ms"
+                                f"/{limit}/{run}/{filename}.csv"))
     return files
 
 
@@ -47,8 +47,8 @@ def check_files(wcs):
                 for limit in config["xp"]["limits"]:
                     for quota in config["xp"]["quotas"]:
                         files.append((
-                            f"{output}/tmp/{workload}/{approach}"
-                            f"/{limit}-{quota}/check/{filename}.csv"))
+                            f"{output}/tmp/{workload}/{approach}-{quota}ms"
+                            f"/{limit}/check/{filename}.csv"))
     return files
 
 
@@ -81,9 +81,9 @@ rule merge_run_topk_query:
 rule format_run_topk_query:
     input:
         ancient(
-            "{output}/data/{workload}/{approach}/{limit}-{quota}/{run}/{query}.csv")
+            "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run}/{query}.csv")
     output:
-        "{output}/tmp/{workload}/{approach}/{limit}-{quota}/{run,[0-9]}/{query}.csv"
+        "{output}/tmp/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.csv"
     run:
         df = pandas.read_csv(str(input))
         if "query" not in df:
@@ -106,8 +106,8 @@ rule run_topk_query:
         query = ancient("workloads/{workload}/{query}.sparql"),
         config = ancient("config/xp.yaml")
     output:
-        metrics = "{output}/data/{workload}/{approach}/{limit}-{quota}/{run,[0-9]}/{query}.csv",
-        solutions = "{output}/data/{workload}/{approach}/{limit}-{quota}/{run,[0-9]}/{query}.json"
+        metrics = "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.csv",
+        solutions = "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.json"
     shell:
         "python scripts/cli.py topk-run {input.query} \
             --approach {wildcards.approach} \
@@ -126,9 +126,9 @@ rule merge_check_topk_query:
 rule format_check_topk_query:
     input:
         ancient(
-            "{output}/data/{workload}/{approach}/{limit}-{quota}/check/{query}.csv")
+            "{output}/data/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv")
     output:
-        "{output}/tmp/{workload}/{approach}/{limit}-{quota}/check/{query}.csv"
+        "{output}/tmp/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv"
     run:
         df = pandas.read_csv(str(input))
         if "query" not in df:
@@ -145,11 +145,11 @@ rule format_check_topk_query:
 rule check_topk_query:
     input:
         reference = ancient(
-            "{output}/data/{workload}/virtuoso/{limit}-0/1/{query}.json"),
+            "{output}/data/{workload}/virtuoso-0ms/{limit}/1/{query}.json"),
         actual = ancient(
-            "{output}/data/{workload}/{approach}/{limit}-{quota}/1/{query}.json")
+            "{output}/data/{workload}/{approach}-{quota}ms/{limit}/1/{query}.json")
     output:
-        "{output}/data/{workload}/{approach}/{limit}-{quota}/check/{query}.csv"
+        "{output}/data/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv"
     shell:
         "python scripts/cli.py compare {input.reference} {input.actual} \
             --output {output}"
