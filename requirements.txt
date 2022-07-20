@@ -1,6 +1,0 @@
-sparqlwrapper
-snakemake
-seaborn
-matplotlib
-coloredlogs
-click

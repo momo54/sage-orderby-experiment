@@ -17,4 +17,4 @@ SELECT ?v0 ?v2 ?v3 ?v4 ?v5 WHERE {
 	?v3 sorg:keywords ?v5 .
 	?v3 wsdbm:hasGenre ?v0 .
 	?v3 rdf:type wsdbm:ProductCategory2 .
-} ORDER BY DESC(?v5) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v5) LIMIT 10

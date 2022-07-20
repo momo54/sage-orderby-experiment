@@ -2,6 +2,24 @@ from pandas import DataFrame
 
 
 class Spy():
+    """
+    This class is used to collect statistics about queries execution.
+
+    Parameters
+    ----------
+    query: str
+        The SPARQL TOP-K query for which we are collected statistics.
+    execution_time: float
+        The time spent on the execution of the query (seconds).
+    data_transfer: float
+        The amount of data transferred during the execution of the query
+        (bytes).
+    http_calls: int
+        The number of HTTP calls sent to the server during the execution of the
+        query.
+    nb_solutions: int
+        The number of solutions returned by the query.
+    """
 
     def __init__(self, query: str):
         self._query = query
@@ -40,8 +58,8 @@ class Spy():
 
     def to_dataframe(self) -> DataFrame:
         columns = [
-            'query', 'execution_time', 'data_transfer',
-            'http_calls', 'solutions']
+            "query", "execution_time", "data_transfer",
+            "http_calls", "solutions"]
         rows = [[
             self._query, self._execution_time, self._data_transfer,
             self._http_calls, self._nb_solutions]]

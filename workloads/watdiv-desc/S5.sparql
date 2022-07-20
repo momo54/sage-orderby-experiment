@@ -15,4 +15,4 @@ SELECT ?v0 ?v2 ?v3 WHERE {
 	?v0 sorg:description ?v2 .
 	?v0 sorg:keywords ?v3 .
 	?v0 sorg:language wsdbm:Language0 .
-} ORDER BY DESC(?v1) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v3) LIMIT 10

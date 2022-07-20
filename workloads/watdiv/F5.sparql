@@ -17,4 +17,4 @@ SELECT ?v0 ?v1 ?v3 ?v4 ?v5 ?v6 WHERE {
 	?v0 gr:validThrough ?v4 .
 	?v1 og:title ?v5 .
 	?v1 rdf:type ?v6 .
-} ORDER BY ?v6 ?v0 LIMIT 10
+} ORDER BY ?v3 ?v5 LIMIT 10

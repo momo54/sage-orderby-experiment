@@ -19,4 +19,4 @@ SELECT ?v0 ?v1 ?v2 ?v4 ?v5 ?v6 ?v7 WHERE {
 	?v1 sorg:url ?v6 .
 	?v1 wsdbm:hits ?v7 .
 	?v0 wsdbm:hasGenre ?v8 .
-} ORDER BY ?v7 ?v0 LIMIT 10
+} ORDER BY ?v7 LIMIT 10

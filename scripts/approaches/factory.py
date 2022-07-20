@@ -3,7 +3,7 @@ from typing import Dict, List
 from approaches.approach import Approach
 from approaches.sage import SaGe
 from approaches.sage_topk import SaGeTopK
-from approaches.sage_topk_collab import SaGeTopKCollab
+from approaches.sage_partial_topk import SaGePartialTopK
 from approaches.virtuoso import Virtuoso
 
 
@@ -14,10 +14,7 @@ class ApproachFactory():
         return [
             "sage",
             "sage-topk",
-            "sage-topk-collab",
-            "sage-topk-collab-0.5",
-            "sage-topk-collab-0.75",
-            "sage-topk-collab-1.0",
+            "sage-partial-topk",
             "virtuoso"]
 
     @staticmethod
@@ -26,14 +23,8 @@ class ApproachFactory():
             return SaGe(approach, config)
         elif approach == "sage-topk":
             return SaGeTopK(approach, config)
-        elif approach == "sage-topk-collab":
-            return SaGeTopKCollab(approach, config)
-        elif approach == "sage-topk-collab-0.5":
-            return SaGeTopKCollab(approach, config, refresh_rate=0.5)
-        elif approach == "sage-topk-collab-0.75":
-            return SaGeTopKCollab(approach, config, refresh_rate=0.75)
-        elif approach == "sage-topk-collab-1.0":
-            return SaGeTopKCollab(approach, config, refresh_rate=1.0)
+        elif approach == "sage-partial-topk":
+            return SaGePartialTopK(approach, config)
         elif approach == "virtuoso":
             return Virtuoso(approach, config)
         raise Exception(f"The approach named {approach} does not exist...")

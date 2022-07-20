@@ -19,4 +19,4 @@ SELECT ?v0 ?v4 ?v6 ?v7 WHERE {
 	?v4 rev:reviewer ?v6 .
 	?v7 sorg:actor ?v6 .
 	?v7 sorg:language ?v8 .
-} ORDER BY DESC(?v7) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v3) DESC(?v8) LIMIT 10

@@ -17,4 +17,4 @@ SELECT ?v0 WHERE {
 	?v0 foaf:age ?v4 .
 	?v0 wsdbm:gender ?v5 .
 	?v0 foaf:givenName ?v6 .
-} ORDER BY ?v6 ?v4 LIMIT 10
+} ORDER BY ?v4 ?v6 LIMIT 10

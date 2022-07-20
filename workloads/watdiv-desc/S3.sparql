@@ -15,4 +15,4 @@ SELECT ?v0 ?v2 ?v3 ?v4 WHERE {
 	?v0 sorg:caption ?v2 .
 	?v0 wsdbm:hasGenre ?v3 .
 	?v0 sorg:publisher ?v4 .
-} ORDER BY DESC(?v3) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v3) DESC(?v4) LIMIT 10

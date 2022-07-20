@@ -14,4 +14,4 @@ SELECT ?v0 ?v1 ?v2 WHERE {
 	?v0 rdf:type ?v1 .
 	?v0 sorg:text ?v2 .
 	?v3 wsdbm:likes ?v0 .
-} ORDER BY DESC(?v3) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v1) LIMIT 10

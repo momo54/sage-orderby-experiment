@@ -188,7 +188,7 @@ class OrderedDict():
                     self.right_rotate(x.parent)
                     s = x.parent.left
 
-                if s.right.color == 0 and s.right.color == 0:
+                if s.left.color == 0 and s.right.color == 0:
                     s.color = 1
                     x = x.parent
                 else:
@@ -582,7 +582,7 @@ class TOPKStruct():
                 if lb[key] > mappings[key]:
                     return True
                 elif lb[key] < mappings[key]:
-                    return True
+                    return False
         return False
 
     # adds a new solution to the topk

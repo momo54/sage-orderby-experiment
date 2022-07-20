@@ -21,4 +21,4 @@ SELECT ?v0 ?v3 ?v4 ?v8 WHERE {
 	?v7 wsdbm:purchaseFor ?v3 .
 	?v3 rev:hasReview ?v8 .
 	?v8 rev:totalVotes ?v9 .
-} ORDER BY DESC(?v8) DESC(?v0)  LIMIT 10
+} ORDER BY DESC(?v9) LIMIT 10

@@ -1,9 +1,8 @@
 name: SaGe experimental server
 quota: 75
 max_results: 10000
-stateless: False
-filter_push_down: True
-values_push_down: True
+max_limit: 10000
+stateless: True
 graphs:
 -
   name: watdiv10M

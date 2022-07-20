@@ -20,4 +20,4 @@ SELECT ?v0 ?v1 ?v3 ?v4 ?v5 ?v6 ?v7 ?v8 ?v9 WHERE {
 	?v0 sorg:eligibleQuantity ?v7 .
 	?v0 sorg:eligibleRegion ?v8 .
 	?v0 sorg:priceValidUntil ?v9 .
-} ORDER BY ?v3 ?v7 LIMIT 10
+} ORDER BY ?v9 ?v3 LIMIT 10

@@ -17,4 +17,4 @@ SELECT ?v0 ?v1 ?v2 ?v4 ?v5 ?v6 WHERE {
 	?v4 wsdbm:makesPurchase ?v5 .
 	?v5 wsdbm:purchaseDate ?v6 .
 	?v5 wsdbm:purchaseFor ?v0 .
-} ORDER BY DESC(?v6) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v1) DESC(?v2) LIMIT 10

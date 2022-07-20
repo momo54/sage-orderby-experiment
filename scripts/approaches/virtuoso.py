@@ -11,6 +11,18 @@ from spy import Spy
 
 
 class Virtuoso(Approach):
+    """
+    This class executes SPARQL TOP-K queries against the Virtuoso endpoint.
+
+    Parameters
+    ----------
+    name: str
+        The name of the approach. It is used to differentiate between the
+        different approaches.
+    config: Dict[str, Any]
+        The configuration file of the experimental study. It is used to
+        retrieve the URL of the endpoint and the name of the RDF graph.
+    """
 
     def __init__(self, name: str, config: Dict[str, Any], **kwargs) -> None:
         super().__init__(name)
@@ -23,12 +35,29 @@ class Virtuoso(Approach):
     def execute_query(
         self, query: str, spy: Spy, **kwargs
     ) -> List[Dict[str, str]]:
+        """
+        Executes a SPARQL TOP-K query against the Virtuoso endpoint.
+
+        Parameters
+        ----------
+        query: str
+            A SPARQL TOP-K query.
+        spy: Spy
+            An object used to collect statistics about the execution of the
+            query.
+
+        Returns
+        -------
+            The result of the query.
+        """
         limit = kwargs.setdefault("limit", 10)
         force_order = kwargs.setdefault("force_order", False)
 
+        orderby_variables = self.__get_orderby_variables__(query)
+
         if force_order:
             query = self.__insert_force_order_pragma__(query)
-        query = self.__set_projection__(query)
+        query = self.__set_projection__(query, ["*"])
         query = self.__set_limit__(query, limit=limit)
 
         logging.info(f"{self.name} - query sent to the server:\n{query}")
@@ -52,6 +81,8 @@ class Virtuoso(Approach):
         for mappings in sparql.queryAndConvert()["results"]["bindings"]:
             solution = {}
             for key in mappings:
-                solution[f"?{key}"] = str(mappings[key]["value"])
+                # to make the validation easier
+                if f"?{key}" in orderby_variables:
+                    solution[f"?{key}"] = str(mappings[key]["value"])
             solutions.append(solution)
         return solutions

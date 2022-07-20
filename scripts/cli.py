@@ -31,22 +31,22 @@ def list_files(path: str) -> List[str]:
 def load_queries(path: str) -> List[Tuple[str, str]]:
     queries = list()
     for file in list_files(path):
-        with open(file, 'r') as reader:
-            filename = os.path.basename(file).split('.')[0]
+        with open(file, "r") as reader:
+            filename = os.path.basename(file).split(".")[0]
             query = reader.read()
             queries.append((filename, query))
     return queries
 
 
-def save_dataframe(dataframe: DataFrame, output: str, mode: str = 'w') -> None:
+def save_dataframe(dataframe: DataFrame, output: str, mode: str = "w") -> None:
     if output is not None:
-        header = not (mode == 'a' and os.path.exists(output))
+        header = not (mode == "a" and os.path.exists(output))
         dataframe.to_csv(output, mode=mode, index=False, header=header)
 
 
 def save_json(data: dict, output: str) -> None:
     if output is not None:
-        with open(output, 'w') as outfile:
+        with open(output, "w") as outfile:
             json.dump(data, outfile, indent=4)
 
 
@@ -74,6 +74,8 @@ def cli():
 @click.option(
     "--quota", type=click.INT, default=None)
 @click.option(
+    "--early-pruning/--no-pruning", default=False)
+@click.option(
     "--force-order/--default-ordering", default=False)
 @click.option(
     "--stats", type=click.Path(exists=False), default=None)
@@ -82,7 +84,7 @@ def cli():
 @click.option(
     "--verbose/--quiet", default=False)
 def topk_run(
-    queryfile, configfile, approach, limit, quota, force_order,
+    queryfile, configfile, approach, limit, quota, early_pruning, force_order,
     stats, output, verbose
 ):
     if verbose:
@@ -90,22 +92,25 @@ def topk_run(
             level="INFO",
             format="%(asctime)s - %(message)s",
             datefmt="%m/%d/%Y %I:%M:%S")
-    config = yaml.safe_load(stream=open(configfile, 'r'))
+    config = yaml.safe_load(stream=open(configfile, "r"))
     filename, query = load_queries(queryfile)[0]
 
     spy = Spy(filename)  # used to collect statistics
     engine = ApproachFactory.create(approach, config)
 
     solutions = engine.execute_query(
-        query, spy, limit=limit, quota=quota, force_order=force_order)
+        query, spy, limit=limit, quota=quota, early_pruning=early_pruning,
+        force_order=force_order)
     dataframe = spy.to_dataframe()
 
-    first_solutions = json.dumps(solutions[:10], indent=4)
+    first_solution = json.dumps(solutions[1], indent=4)
+    last_solution = json.dumps(solutions[-1], indent=4)
 
     logging.info((
         f"{approach} - query executed in {spy.execution_time} seconds "
         f"with {len(solutions)} solutions"))
-    logging.info(f"{approach} - first 10 solutions:\n{first_solutions}")
+    logging.info(f"{approach} - first solution:\n{first_solution}")
+    logging.info(f"{approach} - last solution:\n{last_solution}")
     logging.info(f"{approach} - dataframe:\n{dataframe}")
 
     save_json(solutions, output)
@@ -127,20 +132,20 @@ def compare(reference, actual, output, verbose):
             level="INFO",
             format="%(asctime)s - %(message)s",
             datefmt="%m/%d/%Y %I:%M:%S")
-    reference = json.load(open(reference, 'r'))
-    actual = json.load(open(actual, 'r'))
+    reference = json.load(open(reference, "r"))
+    actual = json.load(open(actual, "r"))
 
     correct = True
     memory = {}
     for mappings in reference:
         sorted_mappings = {k: mappings[k] for k in sorted(mappings.keys())}
-        key = hashlib.md5(str(sorted_mappings).encode('utf-8')).digest()
+        key = hashlib.md5(str(sorted_mappings).encode("utf-8")).digest()
         if key not in memory:
             memory[key] = 0
         memory[key] += 1
     for mappings in actual:
         sorted_mappings = {k: mappings[k] for k in sorted(mappings.keys())}
-        key = hashlib.md5(str(sorted_mappings).encode('utf-8')).digest()
+        key = hashlib.md5(str(sorted_mappings).encode("utf-8")).digest()
         if key not in memory:
             logging.info(f"Incorrect solution: {sorted_mappings}")
             correct = False
@@ -156,7 +161,7 @@ def compare(reference, actual, output, verbose):
         logging.info("The TOP-K is correct")
     else:
         logging.info("The TOP-K is incorrect")
-    DataFrame([[correct]], columns=["correct"]).to_csv(output, index=False)
+    save_dataframe(DataFrame([[correct]], columns=["correct"]), output)
 
 
 if __name__ == "__main__":

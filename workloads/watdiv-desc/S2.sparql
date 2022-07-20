@@ -15,4 +15,4 @@ SELECT ?v0 ?v1 ?v3 WHERE {
 	?v0 sorg:nationality ?v2 .
 	?v0 wsdbm:gender ?v3 .
 	?v0 rdf:type wsdbm:Role2 .
-} ORDER BY DESC(?v3) DESC(?v0) LIMIT 10
+} ORDER BY DESC(?v2) DESC(?v3) LIMIT 10

@@ -11,6 +11,20 @@ from spy import Spy
 
 
 class SaGeTopK(Approach):
+    """
+    This class let the SaGe server compute SPARQL TOP-K queries. Queries are
+    sent to the server, the client just follows the next links as defined in
+    the Web preemption model.
+
+    Parameters
+    ----------
+    name: str
+        The name of the approach. It is used to differentiate between the
+        different approaches.
+    config: Dict[str, Any]
+        The configuration file of the experimental study. It is used to
+        retrieve the URL of the endpoint and the name of the RDF graph.
+    """
 
     def __init__(self, name: str, config: Dict[str, Any], **kwargs):
         super().__init__(name)
@@ -20,11 +34,29 @@ class SaGeTopK(Approach):
     def execute_query(
         self, query: str, spy: Spy, **kwargs
     ) -> List[Dict[str, str]]:
+        """
+        Executes a SPARQL TOP-K query against a preemptable SPARQL endpoint.
+
+        Parameters
+        ----------
+        query: str
+            A SPARQL TOP-K query.
+        spy: Spy
+            An object used to collect statistics about the execution of the
+            query.
+
+        Returns
+        -------
+            The result of the query.
+        """
         limit = kwargs.setdefault("limit", 10)
         quota = kwargs.setdefault("quota", None)
         force_order = kwargs.setdefault("force_order", False)
+        early_pruning = kwargs.setdefault("early_pruning", False)
 
-        query = self.__set_projection__(query)  # to make the validation easier
+        orderby_variables = self.__get_orderby_variables__(query)
+
+        query = self.__set_projection__(query, ['*'])
         query = self.__set_limit__(query, limit=limit)
 
         logging.info(f"{self.name} - query sent to the server:\n{query}")
@@ -39,7 +71,9 @@ class SaGeTopK(Approach):
             "defaultGraph": self._graph,
             "next": None,
             "quota": quota,
-            "forceOrder": force_order}
+            "forceOrder": force_order,
+            "topkStrategy": "topk_server",
+            "earlyPruning": early_pruning}
 
         results = []
         has_next = True
@@ -68,10 +102,11 @@ class SaGeTopK(Approach):
         for mappings in results:
             solution = {}
             for key, value in mappings.items():
-                if value.startswith('"') and value.endswith('"'):
-                    solution[key] = value[1:-1]
-                else:
-                    solution[key] = value
+                if key in orderby_variables:  # to make the validation easier
+                    if value.startswith('"') and value.endswith('"'):
+                        solution[key] = value[1:-1]
+                    else:
+                        solution[key] = value
             solutions.append(solution)
 
         return solutions

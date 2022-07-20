@@ -14,4 +14,4 @@ SELECT ?v1 ?v2 WHERE {
 	?v0 gn:parentCountry ?v1 .
 	?v2 wsdbm:likes wsdbm:Product0 .
 	?v2 sorg:nationality ?v1 .
-} ORDER BY DESC(?v2) DESC(?v1) LIMIT 10
+} ORDER BY DESC(?v1) LIMIT 10

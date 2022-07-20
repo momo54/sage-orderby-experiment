@@ -57,6 +57,18 @@ def xp_archive(wcs):
     return ancient(f"{output}/xp.tar.gz")
 
 
+def extract_approach(wcs):
+    if "earlypruning" in wcs.approach:
+        return wcs.approach.split("-earlypruning")[0]
+    return wcs.approach
+
+
+def extract_earlypruning_option(wcs):
+    if "earlypruning" in wcs.approach:
+        return "early-pruning"
+    return "no-pruning"
+
+
 onsuccess: shell("bash scripts/server.sh stop all")
 onerror: shell("bash scripts/server.sh stop all")
 onstart: shell("bash scripts/server.sh start all")
@@ -83,7 +95,7 @@ rule format_run_topk_query:
         ancient(
             "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run}/{query}.csv")
     output:
-        "{output}/tmp/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.csv"
+        "{output}/tmp/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.csv"
     run:
         df = pandas.read_csv(str(input))
         if "query" not in df:
@@ -106,15 +118,21 @@ rule run_topk_query:
         query = ancient("workloads/{workload}/{query}.sparql"),
         config = ancient("config/xp.yaml")
     output:
-        metrics = "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.csv",
-        solutions = "{output}/data/{workload}/{approach}-{quota}ms/{limit}/{run,[0-9]}/{query}.json"
+        metrics = "{output}/data/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.csv",
+        solutions = "{output}/data/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.json"
+    params:
+        # some options appear in the name of the approach and must be removed
+        approach = (lambda wcs: extract_approach(wcs)),
+        # extracts the earlypruning option encoded in the name of the approach
+        earlypruning = (lambda wcs: extract_earlypruning_option(wcs))
     shell:
         "python scripts/cli.py topk-run {input.query} \
-            --approach {wildcards.approach} \
+            --approach {params.approach} \
             --stats {output.metrics} \
             --output {output.solutions} \
             --limit {wildcards.limit} \
-            --quota {wildcards.quota}"
+            --quota {wildcards.quota} \
+            --{params.earlypruning}"
 
 
 rule merge_check_topk_query:
@@ -128,7 +146,7 @@ rule format_check_topk_query:
         ancient(
             "{output}/data/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv")
     output:
-        "{output}/tmp/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv"
+        "{output}/tmp/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/check/{query}.csv"
     run:
         df = pandas.read_csv(str(input))
         if "query" not in df:
@@ -149,7 +167,7 @@ rule check_topk_query:
         actual = ancient(
             "{output}/data/{workload}/{approach}-{quota}ms/{limit}/1/{query}.json")
     output:
-        "{output}/data/{workload}/{approach}-{quota}ms/{limit}/check/{query}.csv"
+        "{output}/data/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/check/{query}.csv"
     shell:
         "python scripts/cli.py compare {input.reference} {input.actual} \
             --output {output}"

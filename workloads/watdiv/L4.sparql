@@ -13,4 +13,4 @@ PREFIX wsdbm: <http://db.uwaterloo.ca/~galuc/wsdbm/>
 SELECT ?v0 ?v2 WHERE {
 	?v0 og:tag ?v1 .
 	?v0 sorg:caption ?v2 .
-} ORDER BY ?v2 ?v1 LIMIT 10
+} ORDER BY ?v1 LIMIT 10
