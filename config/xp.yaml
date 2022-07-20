@@ -13,6 +13,6 @@ xp:
     "sage-topk-earlypruning",
     "sage-partial-topk-earlypruning"]
   workloads: ["watdiv", "watdiv-desc"]
-  limits: [10, 100, 1000, 10000]
+  limits: [10, 100, 1000, 10000, 100000]
   runs: [1, 2, 3]
   quotas: [100, 500, 1000, 10000]
