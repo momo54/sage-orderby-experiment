@@ -1,6 +1,7 @@
 import yaml
 import glob
 import pandas
+import sys
 
 
 def list_files(path):
@@ -52,21 +53,16 @@ def check_files(wcs):
     return files
 
 
+def xp_files(wcs):
+    output = "output" if "output" not in config else config["output"]
+    if config["xp"]["check"]:
+        return [f"{output}/check.csv", f"{output}/run.csv"]
+    return [f"{output}/run.csv"]
+
+
 def xp_archive(wcs):
     output = "output" if "output" not in config else config["output"]
     return ancient(f"{output}/xp.tar.gz")
-
-
-def extract_approach(wcs):
-    if "earlypruning" in wcs.approach:
-        return wcs.approach.split("-earlypruning")[0]
-    return wcs.approach
-
-
-def extract_earlypruning_option(wcs):
-    if "earlypruning" in wcs.approach:
-        return "early-pruning"
-    return "no-pruning"
 
 
 onsuccess: shell("bash scripts/server.sh stop all")
@@ -79,7 +75,7 @@ rule run_all:
 
 
 rule create_archive:
-    input: ancient(expand("{{output}}/{file}.csv", file=["check", "run"]))
+    input: ancient(xp_files)
     output: "{output}/xp.tar.gz"
     shell: "tar -zcvf {output} --transform 's/{wildcards.output}\\/tmp\\///' {input}"
 
@@ -112,27 +108,30 @@ rule format_run_topk_query:
             df["workload"] = wildcards.workload
         df.to_csv(str(output), index=False)
 
-
 rule run_topk_query:
     input:
         query = ancient("workloads/{workload}/{query}.sparql"),
-        config = ancient("config/xp.yaml")
+        config = ancient(expand("{configfile}", configfile=sys.argv[2]))
     output:
         metrics = "{output}/data/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.csv",
         solutions = "{output}/data/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.json"
     params:
-        # some options appear in the name of the approach and must be removed
-        approach = (lambda wcs: extract_approach(wcs)),
-        # extracts the earlypruning option encoded in the name of the approach
-        earlypruning = (lambda wcs: extract_earlypruning_option(wcs))
+        earlypruning = (
+            lambda wcs: "yes" if config["xp"]["early_pruning"] else "no"),
+        stateless = (
+            lambda wcs: "yes" if config["xp"]["stateless"] else "no"),
+        max_limit = (
+            lambda wcs: config["xp"]["max_limit"])
     shell:
         "python scripts/cli.py topk-run {input.query} \
-            --approach {params.approach} \
+            --approach {wildcards.approach} \
             --stats {output.metrics} \
             --output {output.solutions} \
             --limit {wildcards.limit} \
             --quota {wildcards.quota} \
-            --{params.earlypruning}"
+            --early-pruning {params.earlypruning} \
+            --stateless {params.stateless} \
+            --max-limit {params.max_limit}"
 
 
 rule merge_check_topk_query:

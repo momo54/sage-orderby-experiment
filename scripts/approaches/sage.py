@@ -182,6 +182,8 @@ class SaGe(Approach):
         quota = kwargs.setdefault("quota", None)
         force_order = kwargs.setdefault("force_order", False)
         early_pruning = kwargs.setdefault("early_pruning", False)
+        stateless = kwargs.setdefault("stateless", True)
+        max_limit = kwargs.setdefault("max_limit", None)
 
         topk = TOPKOperator(query, limit=limit)  # client-side top-k operator
 
@@ -191,8 +193,10 @@ class SaGe(Approach):
         query = self.__remove_topk__(query)  # top-k is computed by the client
 
         logging.info(f"{self.name} - query sent to the server:\n{query}")
-        logging.info(f"{self.name} - limit = {limit}")
-        logging.info(f"{self.name} - quota = {0 if None else quota}ms")
+        logging.info(f"{self.name} - limit = {limit} (max={max_limit})")
+        logging.info(f"{self.name} - quota = {quota} (ms)")
+        logging.info(f"{self.name} - stateless = {stateless}")
+        logging.info(f"{self.name} - early-pruning = {early_pruning}")
 
         headers = {
             "accept": "text/html",
@@ -203,7 +207,9 @@ class SaGe(Approach):
             "next": None,
             "quota": quota,
             "forceOrder": force_order,
-            "earlyPruning": early_pruning}
+            "earlyPruning": early_pruning,
+            "stateless": stateless,
+            "maxLimit": max_limit}
 
         has_next = True
 
@@ -223,10 +229,12 @@ class SaGe(Approach):
             spy.report_http_calls(1)
             spy.report_data_transfer(sys.getsizeof(data))
             spy.report_data_transfer(sys.getsizeof(json.dumps(response)))
+            spy.report_loading_time(response["stats"]["resuming_time"])
+            spy.report_saving_time(response["stats"]["saving_time"])
 
         results = topk.flatten()
 
-        elapsed_time = time.time() - start
+        elapsed_time = (time.time() - start) * 1000
 
         spy.report_execution_time(elapsed_time)
         spy.report_solutions(len(results))

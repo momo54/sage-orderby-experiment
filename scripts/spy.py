@@ -19,6 +19,10 @@ class Spy():
         query.
     nb_solutions: int
         The number of solutions returned by the query.
+    loading_time: float
+        The time spent resuming saved plans by the server.
+    saving_time: float
+        The time spent saving query plans by the server.
     """
 
     def __init__(self, query: str):
@@ -27,6 +31,8 @@ class Spy():
         self._data_transfer = 0.0
         self._http_calls = 0
         self._nb_solutions = 0
+        self._resuming_time = 0.0
+        self._saving_time = 0.0
 
     @property
     def execution_time(self) -> float:
@@ -56,11 +62,18 @@ class Spy():
     def report_solutions(self, value: int) -> None:
         self._nb_solutions += value
 
+    def report_loading_time(self, value: float) -> None:
+        self._resuming_time += value
+
+    def report_saving_time(self, value: float) -> None:
+        self._saving_time += value
+
     def to_dataframe(self) -> DataFrame:
         columns = [
             "query", "execution_time", "data_transfer",
-            "http_calls", "solutions"]
+            "http_calls", "solutions", "resuming_time", "saving_time"]
         rows = [[
             self._query, self._execution_time, self._data_transfer,
-            self._http_calls, self._nb_solutions]]
+            self._http_calls, self._nb_solutions, self._resuming_time,
+            self._saving_time]]
         return DataFrame(rows, columns=columns)

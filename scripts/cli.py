@@ -1,10 +1,12 @@
 import click
 import json
 import yaml
+import csv
 import os
 import glob
 import logging
 import hashlib
+import urllib.parse
 
 from pandas import DataFrame
 from typing import Tuple, List
@@ -66,15 +68,19 @@ def cli():
 @click.option(
     "--configfile",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    default="config/xp.yaml")
+    default="config/xp-main.yaml")
 @click.option(
     "--approach", type=click.Choice(ApproachFactory.types()), default="sage")
 @click.option(
     "--limit", type=click.INT, default=10)
 @click.option(
+    "--max-limit", type=click.INT, default=10000)
+@click.option(
     "--quota", type=click.INT, default=None)
 @click.option(
-    "--early-pruning/--no-pruning", default=False)
+    "--early-pruning", type=click.BOOL, default=False)
+@click.option(
+    "--stateless", type=click.BOOL, default=True)
 @click.option(
     "--force-order/--default-ordering", default=False)
 @click.option(
@@ -84,8 +90,8 @@ def cli():
 @click.option(
     "--verbose/--quiet", default=False)
 def topk_run(
-    queryfile, configfile, approach, limit, quota, early_pruning, force_order,
-    stats, output, verbose
+    queryfile, configfile, approach, limit, max_limit, quota, early_pruning,
+    stateless, force_order, stats, output, verbose
 ):
     if verbose:
         logging.basicConfig(
@@ -99,7 +105,8 @@ def topk_run(
     engine = ApproachFactory.create(approach, config)
 
     solutions = engine.execute_query(
-        query, spy, limit=limit, quota=quota, early_pruning=early_pruning,
+        query, spy, limit=limit, max_limit=max_limit, quota=quota,
+        early_pruning=early_pruning, stateless=stateless,
         force_order=force_order)
     dataframe = spy.to_dataframe()
 
@@ -107,7 +114,7 @@ def topk_run(
     last_solution = json.dumps(solutions[-1], indent=4)
 
     logging.info((
-        f"{approach} - query executed in {spy.execution_time} seconds "
+        f"{approach} - query executed in {spy.execution_time / 1000} seconds "
         f"with {len(solutions)} solutions"))
     logging.info(f"{approach} - first solution:\n{first_solution}")
     logging.info(f"{approach} - last solution:\n{last_solution}")
@@ -162,6 +169,29 @@ def compare(reference, actual, output, verbose):
     else:
         logging.info("The TOP-K is incorrect")
     save_dataframe(DataFrame([[correct]], columns=["correct"]), output)
+
+
+@cli.command()
+@click.argument(
+    "queries", type=click.Path(exists=True, dir_okay=False, file_okay=True))
+def extract_queries(queries):
+    expected = ["SELECT", "ORDER BY", "LIMIT"]
+    rejected = [
+        "OPTIONAL", "UNION", "GROUP BY", "BIND", "DISTINCT", "FILTER", "RAND",
+        "STRAFTER", "*", "|"]
+    with open(queries, 'r') as csvfile:
+        rows = csv.reader(csvfile, delimiter='\t')
+        header = None
+        for index, row in enumerate(rows):
+            if header is None:
+                header = row
+                continue
+            url = urllib.parse.unquote_plus(row[0])
+            if not all([operator in url for operator in expected]):
+                continue
+            if any([operator in url for operator in rejected]):
+                continue
+            print(url)
 
 
 if __name__ == "__main__":
