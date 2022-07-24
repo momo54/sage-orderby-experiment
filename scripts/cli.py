@@ -3,6 +3,7 @@ import json
 import yaml
 import csv
 import os
+import re
 import glob
 import logging
 import hashlib
@@ -68,11 +69,11 @@ def cli():
 @click.option(
     "--configfile",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    default="config/xp-main.yaml")
+    default="config/xp-watdiv.yaml")
 @click.option(
     "--approach", type=click.Choice(ApproachFactory.types()), default="sage")
 @click.option(
-    "--limit", type=click.INT, default=10)
+    "--limit", type=click.INT, default=0)
 @click.option(
     "--max-limit", type=click.INT, default=10000)
 @click.option(
@@ -101,7 +102,11 @@ def topk_run(
     config = yaml.safe_load(stream=open(configfile, "r"))
     filename, query = load_queries(queryfile)[0]
 
-    spy = Spy(filename)  # used to collect statistics
+    if "ORDER BY" not in query or "LIMIT" not in query:
+        logging.info("Error: The query is not a TOP-k query...")
+        return
+
+    spy = Spy()  # used to collect statistics
     engine = ApproachFactory.create(approach, config)
 
     solutions = engine.execute_query(
@@ -110,14 +115,14 @@ def topk_run(
         force_order=force_order)
     dataframe = spy.to_dataframe()
 
-    first_solution = json.dumps(solutions[1], indent=4)
-    last_solution = json.dumps(solutions[-1], indent=4)
-
     logging.info((
         f"{approach} - query executed in {spy.execution_time / 1000} seconds "
         f"with {len(solutions)} solutions"))
-    logging.info(f"{approach} - first solution:\n{first_solution}")
-    logging.info(f"{approach} - last solution:\n{last_solution}")
+    if len(solutions) > 0:
+        first_solution = json.dumps(solutions[1], indent=4)
+        last_solution = json.dumps(solutions[-1], indent=4)
+        logging.info(f"{approach} - first solution:\n{first_solution}")
+        logging.info(f"{approach} - last solution:\n{last_solution}")
     logging.info(f"{approach} - dataframe:\n{dataframe}")
 
     save_json(solutions, output)
@@ -174,11 +179,27 @@ def compare(reference, actual, output, verbose):
 @cli.command()
 @click.argument(
     "queries", type=click.Path(exists=True, dir_okay=False, file_okay=True))
-def extract_queries(queries):
+@click.argument(
+    "output", type=click.Path(exists=True, dir_okay=True, file_okay=False))
+@click.option(
+    "--configfile",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    default="config/xp-watdiv.yaml")
+def extract_queries(queries, output, configfile):
+    config = yaml.safe_load(stream=open(configfile, "r"))
+    engine = ApproachFactory.create("sage", config)
+
+    nb_query = len(load_queries(output)) + 1
+
     expected = ["SELECT", "ORDER BY", "LIMIT"]
     rejected = [
-        "OPTIONAL", "UNION", "GROUP BY", "BIND", "DISTINCT", "FILTER", "RAND",
-        "STRAFTER", "*", "|"]
+        "OPTIONAL", "GROUP BY", "BIND", "DISTINCT", "RAND", "STRAFTER",
+        "*", "|"]
+
+    regex_service = re.compile(
+        "((.*?\n)*?.*?)(SERVICE.*?ontology#label.*?{(.*?\n)*?.*?})")
+    orderby_variables = re.compile("(ASC|DESC)\( (\?var[0-9])Label \)")
+
     with open(queries, 'r') as csvfile:
         rows = csv.reader(csvfile, delimiter='\t')
         header = None
@@ -186,12 +207,25 @@ def extract_queries(queries):
             if header is None:
                 header = row
                 continue
-            url = urllib.parse.unquote_plus(row[0])
-            if not all([operator in url for operator in expected]):
+            query = urllib.parse.unquote_plus(row[0])
+            if not all([operator in query for operator in expected]):
                 continue
-            if any([operator in url for operator in rejected]):
+            if any([operator in query for operator in rejected]):
                 continue
-            print(url)
+            query = re.sub(regex_service, "\\1", query)
+            query = re.sub(orderby_variables, "\\1( \\2 )", query)
+            print(f"Wikidata Query:\n{query}")
+            answer = input("Compute number of solutions (y/n): ")
+            if answer != "y":
+                continue
+            solutions = engine.execute_query(query, Spy(), limit=1000000)
+            print(f"Number of solutions: {len(solutions)}")
+            answer = input("Keep this query (y/n): ")
+            if answer == "y":
+                with open(f"{output}/Q{nb_query}.sparql", "w") as queryfile:
+                    queryfile.write(query)
+                print(f"Number of queries: {nb_query}")
+                nb_query += 1
 
 
 if __name__ == "__main__":

@@ -1,0 +1,39 @@
+endpoints:
+  sage:
+    url: http://localhost:8080/sparql
+    graph: http://example.com/datasets/watdiv10M
+  virtuoso:
+    url: http://localhost:8890/sparql
+    graph: http://example.com/datasets/watdiv10M
+experiments:
+  stateless:
+    approaches: ["sage", "sage-topk", "sage-partial-topk"]
+    workloads: ["watdiv", "watdiv-desc"]
+    limits: [10, 100, 1000, 10000]
+    runs: [1, 2, 3]
+    quotas: [100, 500, 1000, 10000]
+    stateless: True
+    early_pruning: False
+    max_limit: 10000
+    check: True
+  statefull:
+    approaches: ["sage-topk", "sage-partial-topk"]
+    workloads: ["watdiv", "watdiv-desc"]
+    limits: [10, 100, 1000, 10000]
+    runs: [1, 2, 3]
+    quotas: [100, 500, 1000, 10000]
+    stateless: False
+    early_pruning: False
+    max_limit: 10000
+    check: True
+  earlypruning:
+    approaches: ["sage-topk", "sage-partial-topk"]
+    workloads: ["watdiv", "watdiv-desc"]
+    limits: [10, 100, 1000, 10000]
+    runs: [1, 2, 3]
+    quotas: [100, 500, 1000, 10000]
+    stateless: True
+    early_pruning: True
+    max_limit: 10000
+    check: True
+    

@@ -9,3 +9,8 @@ graphs:
   uri: http://example.com/datasets/watdiv10M
   backend: hdt-file
   file: ../datasets/watdiv10M.hdt
+-
+  name: wikidata2017
+  uri: http://example.com/datasets/wikidata2017
+  backend: hdt-file
+  file: ../datasets/wikidata2017.hdt

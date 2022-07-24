@@ -1,0 +1,26 @@
+endpoints:
+  sage:
+    url: http://localhost:8080/sparql
+    graph: http://example.com/datasets/wikidata2017
+experiments:
+  stateless:
+    approaches: ["sage", "sage-topk", "sage-partial-topk"]
+    workloads: ["wikidata"]
+    limits: [0]
+    runs: [1, 2, 3]
+    quotas: [100, 500, 1000, 10000]
+    stateless: True
+    early_pruning: False
+    max_limit: 10000
+    check: False
+  earlypruning:
+    approaches: ["sage-topk", "sage-partial-topk"]
+    workloads: ["wikidata"]
+    limits: [0]
+    runs: [1, 2, 3]
+    quotas: [100, 500, 1000, 10000]
+    stateless: True
+    early_pruning: True
+    max_limit: 10000
+    check: False
+    

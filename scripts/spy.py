@@ -7,8 +7,6 @@ class Spy():
 
     Parameters
     ----------
-    query: str
-        The SPARQL TOP-K query for which we are collected statistics.
     execution_time: float
         The time spent on the execution of the query (seconds).
     data_transfer: float
@@ -25,8 +23,7 @@ class Spy():
         The time spent saving query plans by the server.
     """
 
-    def __init__(self, query: str):
-        self._query = query
+    def __init__(self):
         self._execution_time = 0.0
         self._data_transfer = 0.0
         self._http_calls = 0
@@ -70,10 +67,9 @@ class Spy():
 
     def to_dataframe(self) -> DataFrame:
         columns = [
-            "query", "execution_time", "data_transfer",
-            "http_calls", "solutions", "resuming_time", "saving_time"]
+            "execution_time", "data_transfer", "http_calls", "solutions",
+            "resuming_time", "saving_time"]
         rows = [[
-            self._query, self._execution_time, self._data_transfer,
-            self._http_calls, self._nb_solutions, self._resuming_time,
-            self._saving_time]]
+            self._execution_time, self._data_transfer, self._http_calls,
+            self._nb_solutions, self._resuming_time, self._saving_time]]
         return DataFrame(rows, columns=columns)

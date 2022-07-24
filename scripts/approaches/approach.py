@@ -36,7 +36,7 @@ class Approach(ABC):
         where_clause = query.split("WHERE")[1]
         return f"{prefixes}SELECT {projection} WHERE {where_clause}"
 
-    def __set_limit__(self, query: str, limit: int = 10) -> str:
+    def __set_limit__(self, query: str, limit: int = 0) -> str:
         """
         Updates the LIMIT clause of the query.
 
@@ -44,15 +44,18 @@ class Approach(ABC):
         ----------
         query: str
             A SPARQL query.
-        limit: int - (default = 10)
-            The value with which to update the LIMIT clause.
+        limit: int - (default = 0)
+            The value with which to update the LIMIT clause. If limit = 0, then
+            the LIMIT clause is not updated.
 
         Returns
         -------
         str
             Returns the SPARQL query with the updated LIMIT clause.
         """
-        if "LIMIT" in query:
+        if limit == 0:
+            return query
+        elif "LIMIT" in query:
             query = query.split("LIMIT")[0]
         return f"{query} LIMIT {limit}"
 
