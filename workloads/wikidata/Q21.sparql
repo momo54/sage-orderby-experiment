@@ -1,0 +1,14 @@
+SELECT ?var1Label ?var2Label ?var3 
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P106> <http://www.wikidata.org/entity/Q18844224> .
+  ?var1 <http://www.wikidata.org/prop/direct/P19> ?var2 .
+  ?var2 <http://www.wikidata.org/prop/direct/P17> <http://www.wikidata.org/entity/Q145> .
+  ?var1 <http://www.wikidata.org/prop/direct/P569> ?var3 .
+  FILTER ( ?var3 >= "1900-01-01"^^<http://www.w3.org/2001/XMLSchema#dateTime> ) .
+  ?var1 <http://www.w3.org/2000/01/rdf-schema#label> ?var1Label .
+  ?var2 <http://www.w3.org/2000/01/rdf-schema#label> ?var2Label .
+  FILTER ( LANG(?var1Label) = "en" ) .
+  FILTER ( LANG(?var2Label) = "en" ) .
+}
+ORDER BY ASC( ?var3 )
+LIMIT 100

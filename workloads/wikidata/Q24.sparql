@@ -1,0 +1,9 @@
+SELECT ?var1 ?var4
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P31> <http://www.wikidata.org/entity/Q11424> .
+  ?var1 <http://www.wikidata.org/prop/direct/P577> ?var4 .
+  ?var1 <http://www.wikidata.org/prop/direct/P2047> ?var2 .
+  ?var1 <http://www.wikidata.org/prop/direct/P161> ?var6 .
+}
+ORDER BY DESC( ?var4 )
+LIMIT 100

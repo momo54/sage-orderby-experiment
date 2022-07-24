@@ -1,0 +1,17 @@
+SELECT ?var1 ?var2 ?var3 ?var4 
+WHERE {
+  ?var5 <http://www.wikidata.org/prop/direct/P31> <http://www.wikidata.org/entity/Q3918> .
+  ?var5 <http://www.wikidata.org/prop/direct/P17> <http://www.wikidata.org/entity/Q298> .
+  ?var6 <http://www.wikidata.org/prop/direct/P69> ?var5 .
+  ?var6 <http://www.w3.org/2000/01/rdf-schema#label> ?var1 .
+  FILTER ( LANG(?var1) = "es" ) .
+  ?var5 <http://www.w3.org/2000/01/rdf-schema#label> ?var2 .
+  FILTER ( LANG(?var2) = "es" ) .
+  ?var6 <http://www.wikidata.org/prop/direct/P106> <http://www.wikidata.org/entity/Q2526255> .
+  ?var7 <http://www.wikidata.org/prop/direct/P57> ?var6 .
+  ?var7 <http://www.w3.org/2000/01/rdf-schema#label> ?var3 .
+  FILTER ( LANG(?var3) = "es" ) . 
+  ?var7 <http://www.wikidata.org/prop/direct/P577> ?var4 .
+}
+ORDER BY ASC( ?var4 )
+LIMIT 100

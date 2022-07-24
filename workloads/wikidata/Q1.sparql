@@ -1,0 +1,6 @@
+SELECT ?var2 
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P2134> ?var2 .
+}
+ORDER BY DESC( ?var2 )
+LIMIT 10

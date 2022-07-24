@@ -1,0 +1,9 @@
+SELECT ?var1Label ?var2 
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P31> <http://www.wikidata.org/entity/Q341> .
+  ?var1 <http://www.wikidata.org/prop/direct/P571> ?var2 .
+  ?var1 <http://www.w3.org/2000/01/rdf-schema#label> ?var1Label .
+  FILTER ( LANG(?var1Label) = "en" ) .
+}
+ORDER BY DESC( ?var2 )
+LIMIT 30

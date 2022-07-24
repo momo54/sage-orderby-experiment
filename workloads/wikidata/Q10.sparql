@@ -1,0 +1,11 @@
+SELECT ?var1 ?var6
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P27> <http://www.wikidata.org/entity/Q34> .
+  ?var1 <http://www.wikidata.org/prop/direct/P569> ?var6 .
+  ?var1 <http://www.wikidata.org/prop/P106> ?var4 .
+  ?var4 <http://www.wikidata.org/prop/statement/P106> ?var2 ;
+  <http://www.w3.org/ns/prov#wasDerivedFrom> ?var5 .
+  ?var5 <http://www.wikidata.org/prop/reference/P143> ?var3 .
+}
+ORDER BY ASC( ?var6 )
+LIMIT 100000

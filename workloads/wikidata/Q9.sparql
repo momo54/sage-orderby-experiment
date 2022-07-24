@@ -1,0 +1,12 @@
+SELECT ?var1Label ?var2
+WHERE {
+  ?var1 <http://www.wikidata.org/prop/direct/P27> <http://www.wikidata.org/entity/Q34> .
+  ?var1 <http://www.w3.org/2000/01/rdf-schema#label> ?var1Label .
+  ?var1 <http://www.wikidata.org/prop/direct/P106> ?var2 .
+  ?var1 <http://www.wikidata.org/prop/P106> ?var4 .
+  ?var4 <http://www.w3.org/ns/prov#wasDerivedFrom> ?var5 .
+  ?var5 <http://www.wikidata.org/prop/reference/P143> ?var3 .
+  FILTER ( LANG(?var1Label) = "en" ) .
+}
+ORDER BY ASC( ?var2 )
+LIMIT 1000
