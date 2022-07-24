@@ -17,7 +17,7 @@ experiments:
     max_limit: 10000
     check: True
   statefull:
-    approaches: ["sage-topk", "sage-partial-topk"]
+    approaches: ["sage-topk"]
     workloads: ["watdiv", "watdiv-desc"]
     limits: [10, 100, 1000, 10000]
     runs: [1, 2, 3]
