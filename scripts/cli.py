@@ -119,7 +119,7 @@ def topk_run(
         f"{approach} - query executed in {spy.execution_time / 1000} seconds "
         f"with {len(solutions)} solutions"))
     if len(solutions) > 0:
-        first_solution = json.dumps(solutions[1], indent=4)
+        first_solution = json.dumps(solutions[0], indent=4)
         last_solution = json.dumps(solutions[-1], indent=4)
         logging.info(f"{approach} - first solution:\n{first_solution}")
         logging.info(f"{approach} - last solution:\n{last_solution}")
