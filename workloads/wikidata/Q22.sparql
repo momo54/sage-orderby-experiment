@@ -6,5 +6,3 @@ WHERE {
 }
 ORDER BY ASC( ?var3 )
 LIMIT 500
-
-# ok

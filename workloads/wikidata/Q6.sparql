@@ -5,5 +5,3 @@ WHERE {
 }
 ORDER BY DESC( ?var2 )
 LIMIT 1000
-
-# ok

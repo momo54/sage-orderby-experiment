@@ -10,5 +10,3 @@ WHERE {
 }
 ORDER BY ASC( ?var1 )
 LIMIT 100
-
-# ok
