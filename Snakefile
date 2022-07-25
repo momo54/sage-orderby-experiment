@@ -72,9 +72,10 @@ def xp_archive(wcs):
     return ancient(f"{output}/xp.tar.gz")
 
 
-onsuccess: shell("bash scripts/server.sh stop all")
-onerror: shell("bash scripts/server.sh stop all")
-onstart: shell("bash scripts/server.sh start all")
+if "autostart" in config and config["autostart"]:
+    onsuccess: shell("bash scripts/server.sh stop all")
+    onerror: shell("bash scripts/server.sh stop all")
+    onstart: shell("bash scripts/server.sh start all")
 
 
 rule run_all:
@@ -133,6 +134,7 @@ rule run_topk_query:
             lambda wcs: config["experiments"][wcs.xp]["max_limit"])
     shell:
         "python scripts/cli.py topk-run {input.query} \
+            --configfile {input.config} \
             --approach {wildcards.approach} \
             --stats {output.metrics} \
             --output {output.solutions} \
