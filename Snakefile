@@ -61,7 +61,10 @@ def check_files(wcs):
 
 def xp_files(wcs):
     output = "output" if "output" not in config else config["output"]
-    return [f"{output}/run.csv", f"{output}/check.csv"]
+    for xp in config["experiments"]:
+        if config["experiments"][xp]["check"]:
+            return [f"{output}/run.csv", f"{output}/check.csv"]
+    return [f"{output}/run.csv"]
 
 
 def xp_archive(wcs):
