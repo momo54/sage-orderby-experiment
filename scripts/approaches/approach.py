@@ -80,6 +80,25 @@ class Approach(ABC):
                 variables.append(variable.n3())
         return variables
 
+    def __extract_limit__(self, query: str) -> int:
+        """
+        Extracts k in the LIMIT k of a SPARQL query.
+
+        Parameters
+        ----------
+        query: str
+            A TOP-k SPARQL query.
+
+        Returns
+        -------
+        int
+            The limit k of a TOP-k SPARQL query, or 10 if the query has no
+            LIMIT clause.
+        """
+        if "LIMIT" not in query:
+            return 10
+        return int(query.split("LIMIT")[1])
+
     @abstractmethod
     def execute_query(
         self, query: str, spy: Spy, **kwargs

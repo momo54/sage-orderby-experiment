@@ -185,6 +185,8 @@ class SaGe(Approach):
         stateless = kwargs.setdefault("stateless", True)
         max_limit = kwargs.setdefault("max_limit", None)
 
+        if limit == 0:
+            limit = self.__extract_limit__(query)
         topk = TOPKOperator(query, limit=limit)  # client-side top-k operator
 
         orderby_variables = self.__get_orderby_variables__(query)
