@@ -8,4 +8,4 @@ WHERE {
   ?var5 <http://www.wikidata.org/prop/reference/P143> ?var3 .
 }
 ORDER BY ASC( ?var6 )
-LIMIT 100000
+LIMIT 10000
