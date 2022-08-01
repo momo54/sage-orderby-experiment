@@ -104,9 +104,9 @@ Virtuoso installation can be skipped if your are not interesting in checking the
 Experiments are powered by [snakemake](https://snakemake.readthedocs.io/en/stable), a scientific workflow management system in Python. Once all configuration files are defined, just run the following commands. Snakemake will generate an archive *xp.tar.gz* in the specified output directory. Data files in the generated archive can be loaded and visualized using the provided jupyter notebook.
 
 ```bash
-snakemake --configfile config/xp-watdiv.yaml -C output=output/watdiv -j1
+snakemake --configfile config/xp-watdiv.yaml -j1
 
-snakemake --configfile config/xp-wikidata.yaml -C output=output/wikidata -j1
+snakemake --configfile config/xp-wikidata.yaml -j1
 
 jupyter notebook topk.jpynb
 ```
