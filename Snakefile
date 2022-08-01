@@ -60,16 +60,18 @@ def check_files(wcs):
 
 
 def xp_files(wcs):
-    output = "output" if "output" not in config else config["output"]
+    name = config["name"]
+    output = config["output"]
     for xp in config["experiments"]:
         if config["experiments"][xp]["check"]:
-            return [f"{output}/run.csv", f"{output}/check.csv"]
-    return [f"{output}/run.csv"]
+            return [f"{output}/{name}/run.csv", f"{output}/{name}/check.csv"]
+    return [f"{output}/{name}/run.csv"]
 
 
-def xp_archive(wcs):
-    output = "output" if "output" not in config else config["output"]
-    return ancient(f"{output}/xp.tar.gz")
+# def xp_archive(wcs):
+#     name = config["name"]
+#     output = config["output"]
+#     return ancient(f"{output}/{name}/xp.tar.gz")
 
 
 if "autostart" in config and config["autostart"]:
@@ -79,13 +81,13 @@ if "autostart" in config and config["autostart"]:
 
 
 rule run_all:
-    input: xp_archive
-
-
-rule create_archive:
     input: ancient(xp_files)
-    output: "{output}/xp.tar.gz"
-    shell: "tar -zcvf {output} --transform 's/{wildcards.output}\\/tmp\\///' {input}"
+
+
+# rule create_archive:
+#     input: ancient(xp_files)
+#     output: "{output}/xp.tar.gz"
+#     shell: "tar -zcvf {output} --transform 's/{wildcards.output}\\/tmp\\///' {input}"
 
 
 rule merge_run_topk_query:
@@ -120,8 +122,10 @@ rule format_run_topk_query:
 
 rule run_topk_query:
     input:
-        query = ancient("workloads/{workload}/{query}.sparql"),
-        config = ancient(expand("{configfile}", configfile=sys.argv[2]))
+        query = ancient(
+            "workloads/{workload}/{query}.sparql"),
+        config = ancient(
+            expand("config/{configfile}.yaml", configfile=config["name"]))
     output:
         metrics = "{output}/data/{xp}/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.csv",
         solutions = "{output}/data/{xp}/{workload}/{approach}-{quota,[0-9]+}ms/{limit,[0-9]+}/{run,[0-9]}/{query}.json"
