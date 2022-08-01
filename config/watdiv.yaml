@@ -1,3 +1,5 @@
+name: watdiv
+output: output
 endpoints:
   sage:
     url: http://localhost:8080/sparql
