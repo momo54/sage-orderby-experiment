@@ -76,8 +76,9 @@ To quickly get started, run the following commands on one machine which will ins
 
     ```bash
     # In the main directory of the github repository
-    wget nas.jadserver.fr/thesis/xp/topk.tar.gz
-    tar -zxvf topk.tar.gz
+    pip install gdown
+    gdown https://drive.google.com/uc?id=1a-HxE-PxrwWBW70CDvAYeCTJTDPl45R0
+    tar -zxvf datasets.tar.gz
     ```
 
     </details>
